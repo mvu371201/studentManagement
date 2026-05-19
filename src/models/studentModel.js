@@ -14,14 +14,25 @@ const findAll = async () => {
 // Tạo sinh viên và tài khoản 
 const create = async (studentData) => {
     const {
-        ClassID, StudentCode, FullName,
-        DateOfBirth, Gender, PersonalEmail, PhoneNumber, Address, AcademicStatus
+        ClassCode, StudentCode, FullName,
+        DateOfBirth, Gender, PersonalEmail, PhoneNumber, Address, AcademicStatus,
     } = studentData;
+    console.log("test", ClassCode);
 
     const client = await pool.connect();
 
     try {
         await client.query('BEGIN');
+        let validClassID = null;
+        if (ClassCode) {
+            const classQuery = `SELECT "ClassID" FROM "Classes" WHERE "ClassCode" = $1;`;
+            const classResult = await client.query(classQuery, [ClassCode]);
+            if (classResult.rows.length === 0) {
+                throw new Error(`Không tìm thấy lớp học với mã: ${ClassCode}`);
+            }
+            validClassID = classResult.rows[0].ClassID;
+            console.log(validClassID);
+        }
 
         // Mã hóa pass bằng số điện thoại (Độ phức tạp 10)
         const hashedPassword = await bcrypt.hash(PhoneNumber, 10);
@@ -47,7 +58,7 @@ const create = async (studentData) => {
         `;
         const studentValues = [
             newAccountID,
-            ClassID || null,
+            validClassID,
             StudentCode,
             FullName,
             DateOfBirth,
@@ -100,10 +111,86 @@ const update = async (studentId, updateData) => {
     const result = await pool.query(query, values);
     return result.rows[0];
 };
+// Khóa sinh viên
+const lockStudent = async (studentId) => {
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+
+        const lockAccountQuery = `
+            UPDATE "Account" 
+            SET "IsActive" = false
+            WHERE "AccountID" = (
+                SELECT "AccountID" FROM "Students" WHERE "StudentID" = $1
+            );
+        `;
+        await client.query(lockAccountQuery, [studentId]);
+
+        // 2. Chuyển trạng thái hồ sơ Sinh viên thành Đình chỉ
+        // flag2: Bị khóa -> chuyển trạng thái sang đình chỉ học 
+        const updateStudentQuery = `
+            UPDATE "Students"
+            SET "AcademicStatus" = 'DinhChi', "UpdatedAt" = CURRENT_TIMESTAMP
+            WHERE "StudentID" = $1
+            RETURNING *;
+        `;
+        const studentResult = await client.query(updateStudentQuery, [studentId]);
+
+        await client.query('COMMIT');
+
+        return studentResult.rows[0];
+    } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+    } finally {
+        client.release();
+    }
+};
+// Mở khóa sinh viên
+const unlockStudent = async (studentId) => {
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+
+        // 1. Mở khóa Account (IsActive = true)
+        const unlockAccountQuery = `
+            UPDATE "Account" 
+            SET "IsActive" = true
+            WHERE "AccountID" = (
+                SELECT "AccountID" FROM "Students" WHERE "StudentID" = $1
+            );
+        `;
+        await client.query(unlockAccountQuery, [studentId]);
+
+        // 2. Chuyển trạng thái hồ sơ Sinh viên về lại 'DangHoc'
+        const updateStudentQuery = `
+            UPDATE "Students"
+            SET "AcademicStatus" = 'DangHoc', "UpdatedAt" = CURRENT_TIMESTAMP
+            WHERE "StudentID" = $1
+            RETURNING *;
+        `;
+        const studentResult = await client.query(updateStudentQuery, [studentId]);
+
+        await client.query('COMMIT');
+
+        return studentResult.rows[0];
+    } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+    } finally {
+        client.release();
+    }
+};
+
+
 
 
 module.exports = {
     findAll,
     create,
-    update
+    update,
+    lockStudent,
+    unlockStudent
 };

@@ -64,11 +64,61 @@ const updateStudent = async (req, res) => {
         });
     }
 };
+const lockStudent = async (req, res) => {
+    try {
+        const studentId = req.params.id;
+        await StudentService.lockStudent(studentId);
+        res.status(200).json({
+            success: true,
+            message: "Khóa hồ sơ sinh viên thành công!",
+
+        });
+    } catch (error) {
+        if (error.message === "STUDENT_NOT_FOUND") {
+            return res.status(404).json({
+                success: false,
+                message: "Không tìm thấy hồ sơ sinh viên này."
+            });
+        }
+        console.error("Lỗi khi khóa sinh viên:", error.message);
+        res.status(500).json({
+            success: false,
+            message: "Lỗi Server",
+            error: error.message
+        });
+    }
+};
+
+const unlockStudent = async (req, res) => {
+    try {
+        const studentId = req.params.id;
+        await StudentService.unlockStudent(studentId);
+        res.status(200).json({
+            success: true,
+            message: "Mở khóa tài khoản và chuyển trạng thái sinh viên thành công!"
+        });
+    } catch (error) {
+        if (error.message === "STUDENT_NOT_FOUND") {
+            return res.status(404).json({
+                success: false,
+                message: "Không tìm thấy hồ sơ sinh viên này."
+            });
+        }
+        console.error("Lỗi khi mở khóa sinh viên:", error.message);
+        res.status(500).json({
+            success: false,
+            message: "Lỗi Server",
+            error: error.message
+        });
+    }
+};
 
 
 
 module.exports = {
     getStudents,
     createStudent,
-    updateStudent
+    updateStudent,
+    lockStudent,
+    unlockStudent
 };

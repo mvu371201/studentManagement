@@ -16,9 +16,27 @@ const updateStudent = async (studentId, studentData) => {
 
     return updatedStudent;
 };
+const lockStudent = async (studentId) => {
+    const lockedStudent = await StudentModel.lockStudent(studentId);
+    if (!lockedStudent) {
+        throw new Error("STUDENT_NOT_FOUND");
+    }
+    return lockedStudent;
+};
+
+const unlockStudent = async (studentId) => {
+    const unlockedStudent = await StudentModel.unlockStudent(studentId);
+    if (!unlockedStudent) {
+        throw new Error("STUDENT_NOT_FOUND");
+    }
+    return unlockedStudent;
+};
+
 
 module.exports = {
     getAllStudents,
     createStudent,
-    updateStudent
+    updateStudent,
+    lockStudent,
+    unlockStudent
 };
