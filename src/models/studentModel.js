@@ -87,8 +87,25 @@ const update = async (studentId, updateData) => {
     const fields = [];
     const values = [];
     let index = 1;
+    console.log("updateData", updateData);
     // sau này thêm roleuser sau. flag1
     for (const [key, value] of Object.entries(updateData)) {
+        // --- Xử lý riêng ClassCode ---
+        if (key === 'ClassCode') {
+            if (value && value !== 'null' && value !== '') { 
+                const classQuery = `SELECT "ClassID" FROM "Classes" WHERE "ClassCode" = $1;`;
+                const classResult = await pool.query(classQuery, [value]);
+                
+                if (classResult.rows.length > 0) {
+                    fields.push(`"ClassID" = $${index}`);
+                    values.push(classResult.rows[0].ClassID);
+                    index++;
+                }
+            }
+            continue; 
+        }
+
+        // --- Xử lý các trường còn lại ---
         if (key !== 'StudentID' && key !== 'AccountID' && key !== 'StudentCode') {
             fields.push(`"${key}" = $${index}`);
             values.push(value);
