@@ -3,9 +3,10 @@ const bcrypt = require('bcrypt');
 // Lấy danh sách sinh viên và lớp học của sinh viên đó 
 const findAll = async () => {
     const query = `
-        SELECT s.*, c."ClassName", c."Faculty", c."ClassCode"
+        SELECT s.*, c."ClassName", c."Faculty", c."ClassCode", a."IsActive"
         FROM "Students" s
         LEFT JOIN "Classes" c ON s."ClassID" = c."ClassID"
+        LEFT JOIN "Account" a ON s."AccountID" = a."AccountID"
         ORDER BY s."StudentID" ASC;
     `;
     const result = await pool.query(query);

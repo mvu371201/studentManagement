@@ -12,9 +12,9 @@ router.post('/', studentController.createStudent);
 router.put('/:id', studentController.updateStudent);
 
 // Khóa tài khoản và chuyển trạng thái đình chỉ học
-router.put('/:id/lock', studentController.lockStudent);
+router.patch('/:id/lock', studentController.lockStudent);
 
 // Mở khóa tài khoản và chuyển trạng thái sinh viên
-router.put('/:id/unlock', studentController.unlockStudent);
+router.patch('/:id/unlock', studentController.unlockStudent);
 
 module.exports = router;
