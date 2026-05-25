@@ -1,5 +1,4 @@
 const pool = require('../config/database');
-const bcrypt = require('bcrypt');
 // Lấy danh sách sinh viên và lớp học của sinh viên đó 
 const findAll = async () => {
     const query = `
@@ -35,15 +34,13 @@ const create = async (studentData) => {
             console.log(validClassID);
         }
 
-        // Mã hóa pass bằng số điện thoại (Độ phức tạp 10)
-        const hashedPassword = await bcrypt.hash(PhoneNumber, 10);
-
+        // Tạo account chỉ với Username (dùng làm định danh)
         const accountQuery = `
-            INSERT INTO "Account" ("Username", "Password", "Role", "IsActive") 
-            VALUES ($1, $2, 'Student', true) 
+            INSERT INTO "Account" ("Username", "IsActive") 
+            VALUES ($1, true) 
             RETURNING "AccountID";
         `;
-        const accountResult = await client.query(accountQuery, [StudentCode, hashedPassword]);
+        const accountResult = await client.query(accountQuery, [StudentCode]);
 
 
         const newAccountID = accountResult.rows[0].AccountID;
