@@ -31,10 +31,19 @@ const getGenderStats = async () => {
         throw error;
     }
 };
+const getMajorStats = async () => {
+    try {
+        return await DashboardModel.getMajorStats();
+    }
+        catch (error) {
+        throw error;
+    }
+}
 
 module.exports = {
     getTotalStudents,
     getTotalClasses,
     getStatusStats,
-    getGenderStats
+    getGenderStats,
+    getMajorStats
 };

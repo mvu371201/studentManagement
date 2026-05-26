@@ -14,4 +14,7 @@ router.get('/status-stats', dashboardController.getStatusStats);
 // Lấy thống kê theo giới tính
 router.get('/gender-stats', dashboardController.getGenderStats);
 
+// Lấy thống kê theo ngành học 
+router.get('/major-stats', dashboardController.getMajorStats);
+
 module.exports = router;

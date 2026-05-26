@@ -51,10 +51,23 @@ const getGenderStats = async (req, res) => {
         });
     }
 };
+const getMajorStats = async (req, res) => {
+    try {
+        const data = await DashboardService.getMajorStats();
+        res.status(200).json(data);
+    } catch (error) {
+        console.error("Lỗi khi lấy thống kê ngành học:", error);
+        res.status(500).json({ 
+            message: "Lỗi Server", 
+            error: error.message 
+        });
+    }
+};
 
 module.exports = {
     getTotalStudents,
     getTotalClasses,
     getStatusStats,
-    getGenderStats
+    getGenderStats,
+    getMajorStats
 };

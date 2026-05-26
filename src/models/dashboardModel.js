@@ -61,10 +61,30 @@ const getGenderStats = async () => {
         throw error;
     }
 };
+// 5. Lấy thống kê theo ngành học
+const getMajorStats = async () => {
+    try {
+        const result = await pool.query(`
+            SELECT c."Faculty", COUNT(*) AS "Total"
+            FROM "Students" s, "Classes" c
+            WHERE s."ClassID" = c."ClassID" 
+            GROUP BY c."Faculty"
+        `);
+        return {
+            MajorStats: result.rows.map(row => ({
+                Major: row.Faculty,
+                Total: parseInt(row.Total)
+            }))
+        };
+    } catch (error) {
+        throw error;
+    }
+};
 
 module.exports = {
     getTotalStudents,
     getTotalClasses,
     getStatusStats,
-    getGenderStats
+    getGenderStats,
+    getMajorStats
 };
