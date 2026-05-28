@@ -24,10 +24,7 @@ const createStudent = async (req, res) => {
 
         // Lỗi trùng mã sinh viên
         if (error.code === '23505') {
-            return res.status(400).json({
-                success: false,
-                message: "Mã sinh viên hoặc AccountID đã tồn tại trong hệ thống."
-            });
+            return res.status(400).send("Mã sinh viên hoặc AccountID đã tồn tại trong hệ thống.");
         }
 
         res.status(500).json({

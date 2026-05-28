@@ -5,7 +5,6 @@ const getAllClasses = async () => {
 };
 
 const createClass = async (classData) => {
-  console.log("Mendix:", classData);
   if (!classData.ClassCode || !classData.ClassName) {
     throw new Error("Mã lớp và Tên lớp không được để trống!");
   }

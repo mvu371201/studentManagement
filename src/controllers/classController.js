@@ -16,7 +16,7 @@ const createClass = async (req, res) => {
         res.status(201).json({ message: "Đã tạo lớp thành công", newClass });
     } catch (error) {
         if (error.code === '23505') {
-            return res.status(400).json({ message: "Mã lớp đã tồn tại trong hệ thống!" });
+            return res.status(400).send("Mã lớp đã tồn tại, vui lòng chọn mã khác!");
         }
         res.status(400).json({ message: error.message || "Lỗi khi tạo lớp mới" });
     }
@@ -35,7 +35,7 @@ const updateClass = async (req, res) => {
         res.status(200).json({ message: "Cập nhật thành công!", updatedClass });
     } catch (error) {
         if (error.code === '23505') {
-            return res.status(400).json({ message: "Mã lớp bị trùng với lớp khác!" });
+            return res.status(400).send("Mã lớp bị trùng với lớp khác!");
         }
         res.status(400).json({ message: error.message || "Lỗi khi cập nhật lớp học" });
     }
